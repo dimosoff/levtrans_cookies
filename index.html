@@ -3912,8 +3912,8 @@ span a{
 					</div>
 			</div><!--END MOBILE-NAV-->
 
-<div class="cookie-backdrop"></div>
-<div class="cookie active">
+<div class="cookie-backdrop" hidden=""></div>
+<div class="cookie" hidden="">
   <div class="cookie__inner">
     <div class="cookie__heading">Обработка файлов cookie</div>
     <p class="cookie__text"> Наш сайт использует файлы cookie для улучшения пользовательского опыта, сбора статистики и представления персонализированных рекомендаций.<br> Нажав «Принять», вы даете согласие на обработку файлов cookie в соответствии с <a href="/privacy-policy.html" target="_blank">Политикой обработки файлов cookie.</a></p>
@@ -3922,16 +3922,36 @@ span a{
       <button class="cookie__btn" name="cookie-accept" type="button">Принять</button>
     </div>
   </div>
-  <script>
-		document.documentElement.setAttribute("style", "margin-right:" + (window.innerWidth - document.documentElement.clientWidth) + "px;overflow:hidden;");
-    document.addEventListener("click", function(e) {
-      const cookieCloseBtn = e.target.closest(".cookie__btn"); if (!cookieCloseBtn) return;
-      const cookieEl = document.querySelector(".cookie"); cookieEl.classList.remove("active"); cookieEl.setAttribute("hidden", "");
-			const cookieBackdrop = document.querySelector(".cookie-backdrop"); cookieBackdrop.setAttribute("hidden", "");
-			if (cookieCloseBtn.hasAttribute("data-reject")) return;
-			document.documentElement.setAttribute("style", "");
-    });
-  </script>
+	<script>
+		cookiesHandle();
+		function cookiesHandle() {
+			const cookieElement = document.querySelector(".cookie");
+			const cookieBackdrop = document.querySelector(".cookie-backdrop");
+			if (!cookieElement) return;
+			const cookieStorage = localStorage.getItem("cookie_notice");
+			
+			if (cookieStorage === null) {
+				document.documentElement.setAttribute("style", "margin-right:" + (window.innerWidth - document.documentElement.clientWidth) + "px;overflow:hidden;");
+				cookieElement.removeAttribute("hidden");
+				setTimeout(function(){ cookieElement.classList.add("active") }, 100);
+				cookieBackdrop && cookieBackdrop.removeAttribute("hidden");
+			}
+
+			document.addEventListener("click", function(e) {
+				const cookieBtn = e.target.closest(".cookie__btn, .cookie-reject__btn");
+				if (!cookieBtn) return;
+				cookieElement.classList.remove("active");
+				cookieElement.setAttribute("hidden", "");
+				cookieBackdrop && cookieBackdrop.setAttribute("hidden", "");
+				if (cookieBtn.getAttribute("name") === "cookie-accept" || cookieBtn.getAttribute("name") === "cookie-reject") {
+					localStorage.setItem("cookie_notice", true);
+					jQuery.magnificPopup.close();
+				}
+				if (cookieBtn.hasAttribute("data-reject")) return;
+				document.documentElement.setAttribute("style", "");
+			});
+		}
+	</script>
 </div>
 <div id="cookie-reject" class="cookie-reject mfp-with-anim wd-popup mfp-hide" style="max-width:600px;">
   <div class="wd-popup-inner">
@@ -3939,8 +3959,8 @@ span a{
     <p class="cookie-reject__text">В случае, если вы отзовете согласие на обработку cookie, мы не сможем персонализировать для вас рекламу, скидки
       и иные маркетинговые предложения. Также отмена cookie может повлиять на работоспособность сайта.</p>
     <div class="cookie-reject__buttons">
-      <button class="cookie-reject__btn cookie-reject__btn--outline"  name="cookie-reject" type="button">Отклонить</button>
-      <button class="cookie-reject__btn" name="cookie-accept" type="button">Принять</button>
+      <button class="cookie-reject__btn cookie-reject__btn--outline mfp-close-btn-in"  name="cookie-reject" type="button">Отклонить</button>
+      <button class="cookie-reject__btn mfp-close-btn-in" name="cookie-accept" type="button">Принять</button>
     </div>
   </div>
 </div>
